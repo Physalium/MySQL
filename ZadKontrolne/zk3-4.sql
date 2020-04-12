@@ -3,7 +3,7 @@ use swiat;
 select name, SurfaceArea
 from country
 where Continent like 'Asia'
-order by SurfaceArea asc
+order by SurfaceArea
 limit 1;
 
 -- 2
@@ -15,7 +15,7 @@ limit 5;
 -- 3
 select name, SurfaceArea
 from country
-order by SurfaceArea asc
+order by SurfaceArea
 limit 10;
 
 -- 4
@@ -85,7 +85,7 @@ limit 10;
 -- 14
 select name, IndepYear
 from country
-where IndepYear is not null;
+where IndepYear is null;
 
 -- 15
 select name
