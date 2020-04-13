@@ -1,10 +1,14 @@
 use swiat;
+
+
+
 -- 1
 select name, SurfaceArea
 from country
 where Continent like 'Asia'
 order by SurfaceArea
 limit 1;
+
 
 -- 2
 select name, SurfaceArea

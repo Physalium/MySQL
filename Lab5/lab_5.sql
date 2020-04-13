@@ -468,7 +468,7 @@ Database changed
  select countrycode kod, sum(population) ilu_w_miescie
      from city
      where
-     sum(population) > 1e7 -- zapis "kalkulatorowy": xey oznacza x*pow(10,y)
+     Population > 1e7 -- zapis "kalkulatorowy": xey oznacza x*pow(10,y)
      group by 1;
 ERROR 1111 (HY000): Invalid use of group function
  --
