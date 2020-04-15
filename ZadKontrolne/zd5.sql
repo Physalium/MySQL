@@ -23,7 +23,7 @@ from country
 group by Continent;
 
 -- 5
-select GovernmentForm, count(*)
+select GovernmentForm, count(GovernmentForm)
 from country
 where Continent = 'Europe'
   and Population > pow(10, 6)

@@ -1,7 +1,7 @@
- -- czasami istnieje potrzeba wyÅ›wietlania wynikÃ³w "w pionie" a nie "w poziomie"
- -- opowiadajÄ… za to operatory UNION i UNION ALL
+ -- czasami istnieje potrzeba wyœwietlania wyników "w pionie" a nie "w poziomie"
+ -- opowiadaj¹ za to operatory UNION i UNION ALL
  --
- -- ZADANIE: wypiszemy imiona i typy telefonÃ³w (z osoby i telefony):
+ -- ZADANIE: wypiszemy imiona i typy telefonów (z osoby i telefony):
  --
  use znajomi
  select imie from osoby
@@ -18,13 +18,13 @@
 | Marek       |
 | imie        |
 | www         |
-| komÃ³rka     |
+| komórka     |
 | stacjonarny |
 +-------------+
 10 rows in set (0.03 sec)
 
- -- w tabeli telefonÃ³w jest wiele telefonÃ³w typu komÃ³rka, operator UNION wypisuje
- -- kaÅ¼dy wynik tylko po jednym razie, jeÅ›li chcemy mieÄ‡ wszystkie wyniki, to:
+ -- w tabeli telefonów jest wiele telefonów typu komórka, operator UNION wypisuje
+ -- ka¿dy wynik tylko po jednym razie, jeœli chcemy mieæ wszystkie wyniki, to:
  --
  select imie from osoby
      UNION ALL
@@ -41,18 +41,18 @@
 | imie        |
 | Ela         |
 | www         |
-| komÃ³rka     |
-| komÃ³rka     |
+| komórka     |
+| komórka     |
 | stacjonarny |
-| komÃ³rka     |
-| komÃ³rka     |
-| komÃ³rka     |
-| komÃ³rka     |
+| komórka     |
+| komórka     |
+| komórka     |
+| komórka     |
 +-------------+
 16 rows in set (0.00 sec)
 
- -- oczywiÅ›cie liczba kolumn moÅ¼e byÄ‡ wiÄ™ksza, wtedy
- -- dla UNION unikatowa ma byÄ‡ para (n-ka) kolumn
+ -- oczywiœcie liczba kolumn mo¿e byæ wiêksza, wtedy
+ -- dla UNION unikatowa ma byæ para (n-ka) kolumn
  --
  select imie, nazwisko from osoby
      union
@@ -69,15 +69,15 @@
 | imie   | nazwisko    |
 | Ela    | Nowak       |
 | www    | onet        |
-| era    | komÃ³rka     |
-| tp     | komÃ³rka     |
+| era    | komórka     |
+| tp     | komórka     |
 | tp     | stacjonarny |
-| orange | komÃ³rka     |
-| heyah  | komÃ³rka     |
+| orange | komórka     |
+| heyah  | komórka     |
 +--------+-------------+
 14 rows in set (0.00 sec)
 
- -- jeÅ›li wszystkie wyniki, to:
+ -- jeœli wszystkie wyniki, to:
  --
  select imie, nazwisko from osoby
      union all
@@ -94,30 +94,30 @@
 | imie   | nazwisko    |
 | Ela    | Nowak       |
 | www    | onet        |
-| era    | komÃ³rka     |
-| tp     | komÃ³rka     |
+| era    | komórka     |
+| tp     | komórka     |
 | tp     | stacjonarny |
-| orange | komÃ³rka     |
-| orange | komÃ³rka     |
-| heyah  | komÃ³rka     |
-| heyah  | komÃ³rka     |
+| orange | komórka     |
+| orange | komórka     |
+| heyah  | komórka     |
+| heyah  | komórka     |
 +--------+-------------+
 16 rows in set (0.00 sec)
 
- -- przy rÃ³Å¼nej liczbie kolumn zapytanie koÅ„czy siÄ™ bÅ‚Ä™dem:
+ -- przy ró¿nej liczbie kolumn zapytanie koñczy siê b³êdem:
  --
  select imie, nazwisko from osoby
      union -- albo union all
      select operator, typ, numer from telefony;
 ERROR 1222 (21000): The used SELECT statements have a different number of columns
  --
- -- przykÅ‚ad zastosowania: mamy tabelÄ™, w ktÃ³rej mamy osoby z podziaÅ‚em na pÅ‚eÄ‡ (kobieta - k
- -- mÄ™Å¼czyzna - m) i ze wzglÄ™du na stan cywilni (zajÄ™ci - z i wolni w); chcemy wypisaÄ‡ po ile
- -- jest osÃ³b danego typu (wolne panie, zajÄ™te panie, wolni faceci, zajÄ™ci faceci)
+ -- przyk³ad zastosowania: mamy tabelê, w której mamy osoby z podzia³em na p³eæ (kobieta - k
+ -- mê¿czyzna - m) i ze wzglêdu na stan cywilni (zajêci - z i wolni w); chcemy wypisaæ po ile
+ -- jest osób danego typu (wolne panie, zajête panie, wolni faceci, zajêci faceci)
  --
- -- musimy wczeniej poznaÄ‡ funkcjÄ™ liczÄ…cÄ…, jest to funkcja COUNT
+ -- musimy wczeniej poznaæ funkcjê licz¹c¹, jest to funkcja COUNT
  --
- -- sprawdÅºmy, najpierw brutalnie, ile jest osÃ³b z Gliwic:
+ -- sprawdŸmy, najpierw brutalnie, ile jest osób z Gliwic:
  --
  select * from osoby;
 +------+-------+----------+------+----------+
@@ -130,7 +130,7 @@ ERROR 1222 (21000): The used SELECT statements have a different number of column
 |    5 | Iza   | Kot      |   38 | gliwice  |
 |    6 | Marek | Reks     |   30 | Zabrze   |
 |    7 | imie  | nazwisko |   25 | zabrze   |
-|    8 | Ela   | Nowak    |   17 | Nowa SÃ³l |
+|    8 | Ela   | Nowak    |   17 | Nowa Sól |
 |    9 | www   | onet     |   90 | gliwice  |
 +------+-------+----------+------+----------+
 9 rows in set (0.00 sec)
@@ -147,9 +147,9 @@ ERROR 1222 (21000): The used SELECT statements have a different number of column
 +-----+
 1 row in set (0.34 sec)
 
- -- okazuje siÄ™, Å¼e zamiast miasto w count moÅ¼e byÄ‡ cokolwiek:
+ -- okazuje siê, ¿e zamiast miasto w count mo¿e byæ cokolwiek:
 
- select count("Wypisz proszÄ™, ilu mam znajomych z Gliwic.") ile
+ select count("Wypisz proszê, ilu mam znajomych z Gliwic.") ile
      from osoby where
      miasto = "GLIwiCE";
 +-----+
@@ -159,7 +159,7 @@ ERROR 1222 (21000): The used SELECT statements have a different number of column
 +-----+
 1 row in set (0.00 sec)
 
--- moÅ¼e tam byÄ‡ cokolwiek, najczÄ™Å›ciej kolumna lub * (rÃ³Å¼nicÄ™ pokaÅ¼emy pÃ³Åºniej)
+-- mo¿e tam byæ cokolwiek, najczêœciej kolumna lub * (ró¿nicê poka¿emy póŸniej)
 
 
  select count(*) ile
@@ -172,8 +172,8 @@ ERROR 1222 (21000): The used SELECT statements have a different number of column
 +-----+
 1 row in set (0.00 sec)
 
- -- teraz utworzymy pomocniczÄ… tabelÄ™ t o kolumnach pÅ‚eÄ‡ i stan
- -- i wypeÅ‚nimi jÄ…: 1 kobietÄ… wolnÄ… (1kw), 2kz, 3mw i 4mz
+ -- teraz utworzymy pomocnicz¹ tabelê t o kolumnach p³eæ i stan
+ -- i wype³nimi j¹: 1 kobiet¹ woln¹ (1kw), 2kz, 3mw i 4mz
  --
  create table test(
      p enum("k","m"),
@@ -185,8 +185,8 @@ Query OK, 0 rows affected (0.30 sec)
 Query OK, 10 rows affected (0.17 sec)
 Records: 10  Duplicates: 0  Warnings: 0
 
- -- policzmy liczbÄ™ typÃ³w osÃ³b
- select "k-w" AS "pÅ‚eÄ‡-stan", count(*) AS ilosc
+ -- policzmy liczbê typów osób
+ select "k-w" AS "p³eæ-stan", count(*) AS ilosc
      from test
      where
      p = "k" and s = "w"
@@ -206,7 +206,7 @@ Records: 10  Duplicates: 0  Warnings: 0
      where
      p = "m" and s = "z";
 +-----------+-------+
-| pÅ‚eÄ‡-stan | ilosc |
+| p³eæ-stan | ilosc |
 +-----------+-------+
 | k-w       |     1 |
 | k-z       |     2 |
@@ -215,11 +215,11 @@ Records: 10  Duplicates: 0  Warnings: 0
 +-----------+-------+
 4 rows in set (0.00 sec)
 
- -- nie usuwamy jeszcze tabeli test, powtÃ³rzymy to zapytanie pÃ³Åºniej, duÅ¼o proÅ›ciej
+ -- nie usuwamy jeszcze tabeli test, powtórzymy to zapytanie póŸniej, du¿o proœciej
  --
  --
- -- ZADANIE: kontynenty w bazie Å›wiat podzielone sÄ… na regiony (kolumna region)
- -- sprawdÅº, ile jest regionÃ³w w Europie
+ -- ZADANIE: kontynenty w bazie œwiat podzielone s¹ na regiony (kolumna region)
+ -- sprawdŸ, ile jest regionów w Europie
  --
  use swiat;
 Database changed
@@ -277,12 +277,12 @@ Database changed
 +------------------+
 46 rows in set (0.18 sec)
 
- -- wydaje siÄ™, Å¼e jest ich 46, ale Å‚atwo moÅ¼na zauwaÅ¼yÄ‡, Å¼e regiony te siÄ™ powtarzajÄ…
+ -- wydaje siê, ¿e jest ich 46, ale ³atwo mo¿na zauwa¿yæ, ¿e regiony te siê powtarzaj¹
  -- w takim razie - czym jest liczba 46?
- -- PoniewaÅ¼ przebiegliÅ›my tabelÄ™ paÅ„stw, wybierajÄ…c tylko te z Europy (przy okazji
- -- wypisujÄ…c region), wiÄ™c liczba ta oznacza liczbÄ™ paÅ„stw europejskich.
+ -- Poniewa¿ przebiegliœmy tabelê pañstw, wybieraj¹c tylko te z Europy (przy okazji
+ -- wypisuj¹c region), wiêc liczba ta oznacza liczbê pañstw europejskich.
  --
- -- poprawiamy zapytanie wykorzystujÄ…c polecenie DISTINCT, ktÃ³re eliminuje duplikaty
+ -- poprawiamy zapytanie wykorzystuj¹c polecenie DISTINCT, które eliminuje duplikaty
  --
  select DISTINCT region from country
      where continent = "europe";
@@ -298,11 +298,11 @@ Database changed
 +------------------+
 6 rows in set (0.00 sec)
 
- -- okazuje siÄ™, Å¼e regionÃ³w w Europie jest 6
+ -- okazuje siê, ¿e regionów w Europie jest 6
  --
- -- oczywiÅ›cie moÅ¼na to samo zrobiÄ‡ bez wypisywania tych regionÃ³w, znamy funkcjÄ™ COUNT
+ -- oczywiœcie mo¿na to samo zrobiæ bez wypisywania tych regionów, znamy funkcjê COUNT
  --
- select count(distinct region) ile -- pomyÅ›l, a potem sprawdÅº, co bÄ™dzie jeÅ›li w zapytaniu
+ select count(distinct region) ile -- pomyœl, a potem sprawdŸ, co bêdzie jeœli w zapytaniu
      from country						 -- zamienimy na DISTINCT COUNT(region)
      where continent = "europe";
 +-----+
@@ -313,20 +313,20 @@ Database changed
 1 row in set (0.01 sec)
 
  --
- -- funkcja COUNT jest jednÄ… z funkcji agregujÄ…cych, pozostaÅ‚e (podstawowe)
- -- funkcje agregujÄ…ce to (na przykÅ‚adzie zapytania):
+ -- funkcja COUNT jest jedn¹ z funkcji agreguj¹cych, pozosta³e (podstawowe)
+ -- funkcje agreguj¹ce to (na przyk³adzie zapytania):
  --
- select MAX(population) najwiÄ™ksze, MIN(population) najmniejsze,
+ select MAX(population) najwiêksze, MIN(population) najmniejsze,
      AVG(population) rednio, SUM(population) suma, COUNT(population) ile
      from city;
 +------------+-------------+-------------+------------+------+
-| najwiÄ™ksze | najmniejsze | Å›rednio     | suma       | ile  |
+| najwiêksze | najmniejsze | œrednio     | suma       | ile  |
 +------------+-------------+-------------+------------+------+
 |   10500000 |          42 | 350468.2236 | 1429559884 | 4079 |
 +------------+-------------+-------------+------------+------+
 1 row in set (0.00 sec)
 
- -- ZADANIE: wypisz liczbÄ™ miast powyÅ¼ej 5 milionÃ³w mieszkaÅ„cÃ³w
+ -- ZADANIE: wypisz liczbê miast powy¿ej 5 milionów mieszkañców
  --
  select count(*) ile from city
      where population > 5*pow(10,6);
@@ -337,12 +337,12 @@ Database changed
 +-----+
 1 row in set (0.34 sec)
 
- -- ZADANIE: jak sprawdziÄ‡ poprawnoÅ›Ä‡ powyÅ¼szego wyniku?
+ -- ZADANIE: jak sprawdziæ poprawnoœæ powy¿szego wyniku?
  --
  select name miasto, population ilu_ludzi
      from city
-     order by 2 desc -- sortujemy po mieszkaÅ„cach malejÄ…co
-     limit 25; -- wypisujemy o jedno miasto wiÄ™cej, Å¼eby mieÄ‡ pewnoÄ‡ poprawnoÅ›ci powyÅ¼szego
+     order by 2 desc -- sortujemy po mieszkañcach malej¹co
+     limit 25; -- wypisujemy o jedno miasto wiêcej, ¿eby mieæ pewnoæ poprawnoœci powy¿szego
 +-------------------+-----------+
 | miasto            | ilu_ludzi |
 +-------------------+-----------+
@@ -353,7 +353,7 @@ Database changed
 | Jakarta           |   9604900 |
 | Karachi           |   9269265 |
 | Istanbul          |   8787958 |
-| Ciudad de Mâ€šxico  |   8591309 |
+| Ciudad de M‚xico  |   8591309 |
 | Moscow            |   8389200 |
 | New York          |   8008278 |
 | Tokyo             |   7980230 |
@@ -365,7 +365,7 @@ Database changed
 | Lima              |   6464693 |
 | Chongqing         |   6351600 |
 | Bangkok           |   6320174 |
-| Santafâ€š de BogotÂ  |   6260862 |
+| Santaf‚ de Bogot  |   6260862 |
 | Rio de Janeiro    |   5598953 |
 | Tianjin           |   5286800 |
 | Kinshasa          |   5064000 |
@@ -374,13 +374,13 @@ Database changed
 +-------------------+-----------+
 25 rows in set (0.00 sec)
 
- -- w zapytaniu o regiony europejskie (6) i poprzedzajÄ…ce go (46) nasuwa siÄ™
- -- pytanie: po ile jest paÅ„stw europejskich w kaÅ¼dym z regionÃ³w
+ -- w zapytaniu o regiony europejskie (6) i poprzedzaj¹ce go (46) nasuwa siê
+ -- pytanie: po ile jest pañstw europejskich w ka¿dym z regionów
  --
- -- do tego rodzaju zapytaÅ„ sÅ‚uÅ¼y waÅ¼na opcja GROUP BY, ktÃ³ra potrafi
- -- grupowaÄ‡ wyniki po zadanej kategorii
+ -- do tego rodzaju zapytañ s³u¿y wa¿na opcja GROUP BY, która potrafi
+ -- grupowaæ wyniki po zadanej kategorii
  --
- -- ZADANIE: wypisz nazwÄ™ regionu europejskiego i liczbÄ™ paÅ„stw tego regionu
+ -- ZADANIE: wypisz nazwê regionu europejskiego i liczbê pañstw tego regionu
  --
  select region, count(*) ile
      from country
@@ -399,15 +399,15 @@ Database changed
 +------------------+-----+
 6 rows in set (0.00 sec)
 
- -- ZADANIE: wypisz kod (na literÄ™ P) paÅ„stwa, iloÅ›Ä‡ miast w tym paÅ„stwie
- -- i sumÄ™ mieszkaÅ„cÃ³w tych miast sotrtujÄ…c po iloÅ›ci miast, potem po mieszkaÅ„cach
+ -- ZADANIE: wypisz kod (na literê P) pañstwa, iloœæ miast w tym pañstwie
+ -- i sumê mieszkañców tych miast sotrtuj¹c po iloœci miast, potem po mieszkañcach
  select countrycode kod, count(*) "ile miast",
-     sum(population) "ilu mieszczuchÃ³w" from city
+     sum(population) "ilu mieszczuchów" from city
      where countrycode like "p%"
-     group by kod -- moÅ¼na grupowaÄ‡ po aliasie albo po numerze (podobnie jak w sortowaniu)
+     group by kod -- mo¿na grupowaæ po aliasie albo po numerze (podobnie jak w sortowaniu)
      order by 2, 3;
 +-----+-----------+------------------+
-| kod | ile miast | ilu mieszczuchÃ³w |
+| kod | ile miast | ilu mieszczuchów |
 +-----+-----------+------------------+
 | PCN |         1 |               42 |
 | PLW |         1 |            12000 |
@@ -426,9 +426,9 @@ Database changed
 +-----+-----------+------------------+
 14 rows in set (0.38 sec)
 
- -- pokaÅ¼emy teraz rÃ³Å¼nicÄ™ pomiÄ™dzy COUNT("napis"), count(*), count(kolumna)
+ -- poka¿emy teraz ró¿nicê pomiêdzy COUNT("napis"), count(*), count(kolumna)
  --
- -- poprzednio zajmowalimy siÄ™ zmiennÄ… typu NULL,
+ -- poprzednio zajmowalimy siê zmienn¹ typu NULL,
  -- bya ona m.in. w kolumnie gnpold
  --
  select name, gnpold from country
@@ -452,18 +452,18 @@ Database changed
 12 rows in set (0.02 sec)
 
 
- select count(gnpold) kolumna, count(*) ogÃ³lnie -- rÃ³Å¼nica: po kolumnie
-     from country -- zlicza wartoci inne niÅ¼ NULL, * - zlicza wszystko
-     where name like "P%"; -- (chyba, Å¼e byby wiesz samych NULL-i)
+ select count(gnpold) kolumna, count(*) ogólnie -- ró¿nica: po kolumnie
+     from country -- zlicza wartoci inne ni¿ NULL, * - zlicza wszystko
+     where name like "P%"; -- (chyba, ¿e byby wiesz samych NULL-i)
 +---------+---------+
-| kolumna | ogÃ³lnie |
+| kolumna | ogólnie |
 +---------+---------+
 |       9 |      12 |
 +---------+---------+
 1 row in set (0.00 sec)
 
- -- ZADANIE: wypisz sumÄ™ mieszkaÅ„cÃ³w miast z paÅ„stw, ale tylko tych,
- -- gdzie liczba ta jest wiÄ™ksza od 10 000 000
+ -- ZADANIE: wypisz sumê mieszkañców miast z pañstw, ale tylko tych,
+ -- gdzie liczba ta jest wiêksza od 10 000 000
 
  select countrycode kod, sum(population) ilu_w_miescie
      from city
@@ -472,13 +472,13 @@ Database changed
      group by 1;
 ERROR 1111 (HY000): Invalid use of group function
  --
- -- zapytanie koÅ„czy siÄ™ bÅ‚Ä™dem, jest on spowodowany tym, Å¼e jeÅ›li wyznaczamy
- -- wartoÅ›Ä‡ funkcji agregujÄ…cej (COUNT, MAX, SUM, ...) i chcemy przefiltrowaÄ‡
- -- wyniki po jej wartoci (funkcji agregujÄ…cej), to trzeba uÅ¼yÄ‡ klauzuli HAVING:
+ -- zapytanie koñczy siê b³êdem, jest on spowodowany tym, ¿e jeœli wyznaczamy
+ -- wartoœæ funkcji agreguj¹cej (COUNT, MAX, SUM, ...) i chcemy przefiltrowaæ
+ -- wyniki po jej wartoci (funkcji agreguj¹cej), to trzeba u¿yæ klauzuli HAVING:
  --
  select countrycode kod, sum(population) ilu_w_miescie
      from city
-     group by 1 -- moÅ¼na sortowaÄ‡ po numerze wypisywanej kolumny (jak w ORDER BY)
+     group by 1 -- mo¿na sortowaæ po numerze wypisywanej kolumny (jak w ORDER BY)
      having
      sum(population) > 1e7
      order by 2;
@@ -518,11 +518,11 @@ ERROR 1111 (HY000): Invalid use of group function
 +-----+---------------+
 30 rows in set (0.01 sec)
 
- -- jeÅ›li jest potrzeba uÅ¼ycia rÃ³wnieÅ¼ warunku WHERE, to oczywiÅ›cie moÅ¼na
- -- naleÅ¼y tylko zachowaÄ‡ odpowiedni porzÄ…dek skÅ‚adni
+ -- jeœli jest potrzeba u¿ycia równie¿ warunku WHERE, to oczywiœcie mo¿na
+ -- nale¿y tylko zachowaæ odpowiedni porz¹dek sk³adni
  --
- -- ZADANIE: uzupeÅ‚nij powyÅ¼sze zapytanie, tak Å¼eby wypisywaÄ‡ tylko kraje,
-	   -- ktÃ³rych kod zaczyna siÄ™ literÄ… "P"
+ -- ZADANIE: uzupe³nij powy¿sze zapytanie, tak ¿eby wypisywaæ tylko kraje,
+	   -- których kod zaczyna siê liter¹ "P"
  --
  select countrycode kod, sum(population) ilu_w_miescie
      from city
@@ -541,10 +541,10 @@ ERROR 1111 (HY000): Invalid use of group function
 | PAK |      31546745 |
 +-----+---------------+
 4 rows in set (0.00 sec)
- -- grupowanie (GROUP BY) moÅ¼na, podobnie jak sortowanie (ORDER BY) zagnieÅ¼dÅ¼aÄ‡
+ -- grupowanie (GROUP BY) mo¿na, podobnie jak sortowanie (ORDER BY) zagnie¿d¿aæ
  --
- -- ZADANIE: wypisz nazwy kontynentÃ³w i liczbÄ™ paÅ„stw na nich leÅ¼Ä…cych,
- -- ktÃ³rych nazwy zaczynajÄ… siÄ™ jednÄ… z liter "H", "P" lub "U"
+ -- ZADANIE: wypisz nazwy kontynentów i liczbê pañstw na nich le¿¹cych,
+ -- których nazwy zaczynaj¹ siê jedn¹ z liter "H", "P" lub "U"
  select continent kontynent, left(name, 1) znak, count(*) ile
      from country
      where
@@ -572,7 +572,7 @@ ERROR 1111 (HY000): Invalid use of group function
 15 rows in set (0.00 sec)
 
  --
- -- ZADANIE: zweryfikuj powyÅ¼sze zapytanie na przykÅ‚adzie Azji i Europy, wypisujÄ…c te kraje
+ -- ZADANIE: zweryfikuj powy¿sze zapytanie na przyk³adzie Azji i Europy, wypisuj¹c te kraje
  --
  select continent kontynent, name kraj
      from country
@@ -600,18 +600,18 @@ ERROR 1111 (HY000): Invalid use of group function
 12 rows in set (0.00 sec)
 
  --
- -- ZADANIE: wrÃ³Ä‡ do tabeli test (w bazie znajomi) i wykorzystujÄ…c grupowanie
- -- napisz zapytanie dotyczÄ…ce pÅ‚ci i stanu
+ -- ZADANIE: wróæ do tabeli test (w bazie znajomi) i wykorzystuj¹c grupowanie
+ -- napisz zapytanie dotycz¹ce p³ci i stanu
  --
 
  use znajomi
 Database changed
 
- select p pÅ‚eÄ‡, s stan, count(*) ile
+ select p p³eæ, s stan, count(*) ile
      from test
      group by p, s;
 +------+------+-----+
-| pÅ‚eÄ‡ | stan | ile |
+| p³eæ | stan | ile |
 +------+------+-----+
 | k    | w    |   1 |
 | k    | z    |   2 |
@@ -621,39 +621,39 @@ Database changed
 4 rows in set (0.00 sec)
 
 
- -- jeli bardzo chcielibymy, Å¼eby byÅ‚a tylko jedna kolumna na pÅ‚eÄ‡-stan (jak poprzednio),
- -- to moÅ¼na uÅ¼yÄ‡ poznanych wczeÅ›niej funkcji:
+ -- jeli bardzo chcielibymy, ¿eby by³a tylko jedna kolumna na p³eæ-stan (jak poprzednio),
+ -- to mo¿na u¿yæ poznanych wczeœniej funkcji:
  --
- select concat(if(p="m","panowie ","panie "), if(s="w","stanu wolnego","brak wolnoÅ›ci"))
-     "pÅ‚eÄ‡ - stan", count(*) ile
+ select concat(if(p="m","panowie ","panie "), if(s="w","stanu wolnego","brak wolnoœci"))
+     "p³eæ - stan", count(*) ile
      from test
      group by p, s
      order by p, s;
 +------------------------+-----+
-| pÅ‚eÄ‡ - stan            | ile |
+| p³eæ - stan            | ile |
 +------------------------+-----+
 | panie stanu wolnego    |   1 |
-| panie brak wolnoÅ›ci    |   2 |
+| panie brak wolnoœci    |   2 |
 | panowie stanu wolnego  |   3 |
-| panowie brak wolnoÅ›ci  |   4 |
+| panowie brak wolnoœci  |   4 |
 +------------------------+-----+
 4 rows in set (0.00 sec)
 
  --
- -- tabeli test dziÄ™kujemy za wspÃ³Å‚pracÄ™
+ -- tabeli test dziêkujemy za wspó³pracê
  --
- drop table test; -- i wracamy do Å›wiata na podsumowujÄ…ce zapytanie
+ drop table test; -- i wracamy do œwiata na podsumowuj¹ce zapytanie
 Query OK, 0 rows affected (0.40 sec)
 
  use swiat
 Database changed
  --
- -- ZADANIE: wypisz gÅ‚owÄ™ paÅ„stwa i liczbÄ™ krajÃ³w, ktÃ³rymi ta gÅ‚owa rzÄ…dzi
- -- interesujÄ… nas tylko rzÄ…dzÄ…cy nie zaczynajÄ…cy siÄ™ na samogÅ‚oskÄ™
- -- wypisz tylko te wyniki, gdzie liczba podporzÄ…dkowanych krajÃ³w
- -- jest wiÄ™ksza od 2 i niepodzielna przez 5, wyniki posortuj po liczbie krajÃ³w
- -- a wewnÄ…trz po rzÄ…dzÄ…cym (w odwrotnej kolejnoÅ›ci)
- -- pomiÅ„ w wypisywaniu pierwszy wynik, wypisz 4 kolejne
+ -- ZADANIE: wypisz g³owê pañstwa i liczbê krajów, którymi ta g³owa rz¹dzi
+ -- interesuj¹ nas tylko rz¹dz¹cy nie zaczynaj¹cy siê na samog³oskê
+ -- wypisz tylko te wyniki, gdzie liczba podporz¹dkowanych krajów
+ -- jest wiêksza od 2 i niepodzielna przez 5, wyniki posortuj po liczbie krajów
+ -- a wewn¹trz po rz¹dz¹cym (w odwrotnej kolejnoœci)
+ -- pomiñ w wypisywaniu pierwszy wynik, wypisz 4 kolejne
  --
  select headofstate glowa, count(*) ile_krajow
      from country
@@ -678,17 +678,17 @@ Database changed
 +----------------+------------+
 4 rows in set (0.00 sec)
 
- -- ZADANIE: zweryfikuj powyÅ¼szy wynik wypisujÄ…c rzÄ…dzÄ…cych i liczbÄ™ paÅ„stw
- -- sortowanie po liczbie paÅ„stw w odwrotnym porzÄ…dku,
- -- 9 poczÄ…tkowych wynikÃ³w
+ -- ZADANIE: zweryfikuj powy¿szy wynik wypisuj¹c rz¹dz¹cych i liczbê pañstw
+ -- sortowanie po liczbie pañstw w odwrotnym porz¹dku,
+ -- 9 pocz¹tkowych wyników
 
- select headofstate gÅ‚owa, count(*) ile_krajow
+ select headofstate g³owa, count(*) ile_krajow
      from country
      group by 1
      order by 2 desc
      limit 9;
 +----------------+------------+
-| gÅ‚owa          | ile_krajow |
+| g³owa          | ile_krajow |
 +----------------+------------+
 | Elisabeth II   |         35 |
 | Jacques Chirac |         11 |
@@ -698,7 +698,7 @@ Database changed
 | Harald V       |          3 |
 | Margrethe II   |          3 |
 |                |          2 |
-| HeydÃ¤r Ã„liyev  |          1 |
+| Heydär Äliyev  |          1 |
 +----------------+------------+
 9 rows in set (0.00 sec)
 
