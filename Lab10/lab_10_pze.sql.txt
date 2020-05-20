@@ -1,0 +1,478 @@
+mysql> -- 						DEFINIOWANIE WŁASNYCH FUNKCJI
+mysql> --
+mysql> -- Domyślnie definiowanie funkcji jest wyłączone, aby je uaktywnić należy:
+mysql> --
+mysql> set GLOBAL log_bin_trust_function_creators = 1;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> --
+mysql> -- Ponieważ definiowana funkcja będzie posiadała ciało tej funkcji, a składowe
+mysql> -- tego ciała oddzielane są średnikami, więc nie dałoby się zdefiniować funkcji,
+mysql> -- bo jej definicja kończyłaby się na pierwszym średniku. Dlatego należy 
+mysql> -- zmienić znak odpowiadający za polecenie "wykonaj", tzw. delimiter:
+mysql> --
+mysql> DELIMITER //
+mysql> --
+mysql> -- Od teraz do odwołania (lub do zakończenia sesji) polecenia należy 
+mysql> -- kończyć znakiem // np.:
+mysql> --
+mysql> select sin(10)*sin(10) sin, cos(10)*cos(10) kos, sin(10)*sin(10) + cos(10)*cos(10) jedynka //
++-------------------+-------------------+---------+
+| sin               | kos               | jedynka |
++-------------------+-------------------+---------+
+| 0.295958969093304 | 0.704041030906696 |       1 |
++-------------------+-------------------+---------+
+1 row in set (0.00 sec)
+
+mysql> --
+mysql> -- Definiowanie funkcji pokażemy na przykładzie.
+mysql> --
+mysql> --
+mysql> -- ZADANIE: napisz funkcję suma dodającą dwie liczby całkowite
+mysql> -- będące argumentami tej funkcji
+mysql> --
+mysql> create FUNCTION suma(a int, b int)	-- tworzymy funkcję: nazwa, zmienne i ich typy
+    -> RETURNS int							-- co zwraca (typ)
+    -> BEGIN								-- początek definiowania funkcji
+    ->  DECLARE c int;						-- definiowanie zmiennej: nazwa i typ
+    ->  set c = a + b;						-- jak powstaje zmienna
+    ->  RETURN c;							-- co program zwraca
+    -> END //								-- koniec definiowania funkcji
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> --
+mysql> -- Wygodnie jest powrócić do standardowego znaku "wykonaj" (przyzwyczajenie). 
+mysql> --
+mysql> delimiter ;
+mysql> --
+mysql> -- Funkcję wywołujemy poprzez select funkcja(argumenty po przecinkach);
+mysql> --
+mysql> select suma(4,6);
++-----------+
+| suma(4,6) |
++-----------+
+|        10 |
++-----------+
+1 row in set (0.00 sec)
+
+mysql> select suma(pow(3,5),5*9);
++--------------------+
+| suma(pow(3,5),5*9) |
++--------------------+
+|                288 |
++--------------------+
+1 row in set (0.00 sec)
+
+mysql> -- 
+mysql> -- Jeśli argumenty nie będą całkowite:
+mysql> --
+mysql> select suma("a","b");
+ERROR 1366 (HY000): Incorrect integer value: 'a' for column 'a' at row 1
+mysql> --
+mysql> -- Z NULL-ami jest jak zwykle:
+mysql> --
+mysql> select suma(3/0,5*9);
++---------------+
+| suma(3/0,5*9) |
++---------------+
+|          NULL |
++---------------+
+1 row in set (0.00 sec)
+
+mysql> -- A jeśli argumenty nie będą całkowite, ale będą liczbami:
+mysql> --
+mysql> select suma(7.8,10);
++--------------+
+| suma(7.8,10) |
++--------------+
+|           18 |
++--------------+
+1 row in set (0.00 sec)
+
+mysql> select suma(pi(),10);
++---------------+
+| suma(pi(),10) |
++---------------+
+|            13 |
++---------------+
+1 row in set (0.00 sec)
+
+mysql> --
+mysql> -- Jak widać wykonuje się rzutowanie na liczbę całkowitą przez zaokrąglanie.
+mysql> --
+mysql> --
+mysql> -- Sprawdzimy, czy funkcja jest zdefiniowana na czas trwania sesji, czy na 
+mysql> -- stałe i czy bo bazy, w której była tworzona.
+mysql> --
+mysql> --
+mysql> -- ZADANIE: wyloguj się, zaloguj się ponownie i sprawdź, czy działa funkcja.
+mysql> --
+mysql> -- ZADANIE: zmień bazę i sprawdź, czy działa funkcja.
+mysql> --
+mysql> -- Jeśli chcemy sprawdzić, czy w danej bazie są jakieś funkcje, to możemy
+mysql> -- o to zapytać, w systemie są informacje na ten temat.
+mysql> --
+mysql> select name from mysql.proc		-- tu można zakończyć - pokaże wszystkie funkcje 
+    -> where db = "swiat"				-- i procedury, albo ograniczyć się do jakiejś bazy
+    -> and								-- lub do funkcji lub procedur
+    -> type = "function";				-- zamiast "function" może być "procedure"
+ERROR 1146 (42S02): Table 'mysql.proc' doesn't exist'
+mysql> --
+mysql> -- Zapytanie zakończyło się błędem (u mnie), bo działa ono we wcześniejszej
+mysql> -- wersji (u osób używających webserv-a), w wersji 8 MySQL-a pozbyto się tabeli proc 
+mysql> --
+mysql> -- 
+mysql> -- jeśli chcemy zobaczyć definicję funkcji, wykonujemy polecenie:
+mysql> --
+mysql> show CREATE FUNCTION suma;
++----------+--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+----------------------+----------------------+--------------------+
+| Function | sql_mode                                   | Create Function                                                                                                                  | character_set_client | collation_connection | Database Collation |
++----------+--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+----------------------+----------------------+--------------------+
+| suma     | STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION | CREATE DEFINER=`root`@`localhost` FUNCTION `suma`(a int, b int) RETURNS int
+BEGIN
+ DECLARE c int;
+ set c = a + b;
+ RETURN c;
+END | utf8mb4              | utf8mb4_0900_ai_ci   | utf8mb4_0900_ai_ci |
++----------+--------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+----------------------+----------------------+--------------------+
+1 row in set (0.00 sec)
+
+mysql> --
+mysql> -- Jeżeli znudzi się nam już funkcja ...
+mysql> --
+mysql> drop function suma;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> --
+mysql> -- ZADANIE: w bazie znajomi napisz funkcję, która z imion i nazwisk z tabeli ę
+mysql> -- osoby stworzy list maili firmowych: imie.nazwisko@firma.pl
+mysql> --
+mysql> use znajomi
+Database changed
+mysql> --
+mysql> delimiter //
+mysql> create function mejlaślij (imie varchar(12), nazwisko varchar(32))
+    -> returns varchar(50)
+    -> begin
+    ->  declare mejl varchar(50);
+    ->  set mejl = concat(imie,".",nazwisko,"@firma.pl");
+    ->  return mejl;
+    -> end //
+Query OK, 0 rows affected (0.01 sec)
+mysql> --
+mysql> delimiter ;
+mysql> --
+mysql> -- Funkcje można (co już wiemy) na pojedynczych danych:
+mysql> --
+mysql> select mejlaślij("Janko","Muzykant");
++--------------------------------+
+| mejlaślij("Janko","Muzykant")  |
++--------------------------------+
+| Janko.Muzykant@firma.pl        |
++--------------------------------+
+1 row in set (0.00 sec)
+
+mysql> --
+mysql> -- albo na tabeli (kolumnach tabel):
+mysql> --
+mysql> select id_o kto, imie, nazwisko, mejlaślij(imie, nazwisko) "adresy e-mail", miasto
+    -> from osoby;
++-----+-------+----------+------------------------+-----------+
+| kto | imie  | nazwisko | adresy e-mail          | miasto    |
++-----+-------+----------+------------------------+-----------+
+|   1 | Jan   | Lis      | Jan.Lis@firma.pl       | gliwice   |
+|   2 | Ola   | Nowak    | Ola.Nowak@firma.pl     | gliwice   |
+|   3 | Ela   | Maj      | Ela.Maj@firma.pl       | gliwice   |
+|   4 | Ala   | Guz      | Ala.Guz@firma.pl       | gliwice   |
+|   5 | Iza   | Kot      | Iza.Kot@firma.pl       | gliwice   |
+|   6 | Marek | Reks     | Marek.Reks@firma.pl    | Zabrze    |
+|   7 | imie  | nazwisko | imie.nazwisko@firma.pl | zabrze    |
+|   8 | Ela   | Nowak    | Ela.Nowak@firma.pl     | Nowa Sól  |
+|   9 | www   | onet     | www.onet@firma.pl      | gliwice   |
++-----+-------+----------+------------------------+-----------+
+9 rows in set (0.00 sec)
+
+mysql> drop function mejlaślij;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> --
+mysql> -- ZADANIE: napisz funkcję rk (równanie kwadratowe), która dla podanych 
+mysql> -- współczynników a, b, c równania a*x^2 + b*x + c = 0, zwracała będzie
+mysql> -- pierwiastki rzeczywiste tego równania lub, jeśli nie ma takowych,
+mysql> -- zwróci stosowny napis o braku tych pierwiastków (rozpatrz również przypadek,
+mysql> -- w którym a=0, tzn. kiedy nie jest to równanie kwadratowe).
+mysql> --
+mysql> delimiter //
+mysql> create function rk(a double, b double, c double)
+    -> returns varchar(100)
+    -> begin
+    ->  declare odp varchar(100);
+    ->  declare delta double;
+    ->  set delta = pow(b,2) - 4*a*c;
+    ->  if a = 0 then set odp = "To nie jest równanie kwadratowe!";
+    ->  elseif delta < 0 then
+    -> set odp = concat("Nie ma pierwiastków rzeczywistych.");
+    ->  elseif delta = 0 then
+    -> set odp = concat("Pierwiastek podwójny: ",-b/(2*a));
+    ->  else
+    ->  set odp = concat("Dwa pierwiastki rzeczywiste, x1= ",
+    -> (-b-sqrt(delta))/(2*a)," x2= ",(-b+sqrt(delta))/(2*a));
+    ->  end if;
+    ->  return odp;
+    -> end //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> delimiter ;
+mysql> --
+mysql> -- Zwróćmy uwagę na inną konstrukcję IF-a, dotychczas konstrukcja ta miała 
+mysql> -- postać if(warunek,treść dla tak, treść dla nie), teraz (w składni tworzenia
+mysql> -- funkcji) jest bardziej C+,C#-kształtna, uwaga na elseif pisany łącznie.
+mysql> --
+mysql> -- Przetestujmy teraz funkcję na wszystkich typach odpowiedzi: 
+mysql> --
+mysql> -- 1. równanie liniowe:
+mysql> --
+mysql> select rk(0,2,3);
++-----------------------------------+
+| rk(0,2,3)                         |
++-----------------------------------+
+| To nie jest równanie kwadratowe!  |
++-----------------------------------+
+1 row in set (0.00 sec)
+
+mysql> --
+mysql> -- 2. brak pierwiastków rzeczywistych:
+mysql> --
+mysql> select rk(1,2,3);
++-------------------------------------+
+| rk(1,2,3)                           |
++-------------------------------------+
+| Nie ma pierwiastków rzeczywistych.  |
++-------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> --
+mysql> -- 3. pierwiastek podwójny:
+mysql> --
+mysql> select rk(1,2,1);
++---------------------------+
+| rk(1,2,1)                 |
++---------------------------+
+| Pierwiastek podwójny: -1  |
++---------------------------+
+1 row in set (0.00 sec)
+
+
+mysql> --
+mysql> -- 4. dwa "ładne" pierwiastki rzeczywiste:
+mysql> --
+mysql> select rk(1,2,-3);
++-------------------------------------------+
+| rk(1,2,-3)                                |
++-------------------------------------------+
+| Dwa pierwiastki rzeczywiste, x1= -3 x2= 1 |
++-------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> --
+mysql> -- 5. dwa "szalone" pierwiastki rzeczywiste:
+mysql> --
+mysql> select rk(pi(),log(2),-sqrt(3));
++----------------------------------------------------------------------------+
+| rk(pi(),log(2),-sqrt(3))                                                   |
++----------------------------------------------------------------------------+
+| Dwa pierwiastki rzeczywiste, x1= -0.860983446310035 x2= 0.6403478461573834 |
++----------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> -- 
+mysql> drop function rk
+    -> ;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> --
+mysql> -- ZADANIE: zmień definicję funkcji rk, tak żeby szukała również 
+mysql> -- pierwiastków zespolonych (SQL nie zna liczb zespolonych)
+mysql> -- Użyj również funkcji CASE (konstrukcja C+-podobna)
+mysql> --
+mysql> delimiter //
+
+mysql> create function rk(a float, b float, c float)
+    -> returns varchar(200)
+    -> begin
+    ->  declare odp varchar(200);
+    ->  declare delta float;
+    ->  set delta = pow(b,2) - 4*a*c;
+    ->  case a-- jeśli "a" będzie przyjmować konkretne wartości
+    -> when 0 then set odp = "To nie jest równanie kwadratowe!";
+    ->  else
+    ->  case  -- a tu nie będzie wartości, tylko warunki
+    -> when delta < 0 then
+    -> set odp =
+    -> concat("Dwa pierwiastki zespolone, x1= ", -b/(2*a),-sqrt(-delta)/(2*a),"i  ",
+    -> "x2= ", -b/(2*a),"+",sqrt(-delta)/(2*a),"i");
+    -> when delta = 0 then set odp = concat("Pierwiastek podwójny: ",-b/(2*a));
+    -> else set odp = concat("Dwa pierwiastki rzeczywiste, x1= ",
+    -> (-b-sqrt(delta))/(2*a)," x2= ",(-b+sqrt(delta))/(2*a));
+    ->  end case;
+    ->  end case;
+    ->  return odp;
+    -> end //
+Query OK, 0 rows affected (0.01 sec)
+mysql> --
+mysql> -- Przetestujmy teraz funkcję na wszystkich typach odpowiedzi: 
+mysql> --
+mysql> -- 1. równanie liniowe:
+mysql> --
+
+mysql> select rk(0,2,3);
+    -> \c
+mysql> delimiter ;
+mysql> select rk(0,2,3);
++-----------------------------------+
+| rk(0,2,3)                         |
++-----------------------------------+
+| To nie jest równanie kwadratowe!  |
++-----------------------------------+
+1 row in set (0.00 sec)
+
+mysql> --
+mysql> -- 2. dwa "ładne" pierwiastki rzeczywiste:
+mysql> --
+
+mysql> select rk(1,2,-3);
++-------------------------------------------+
+| rk(1,2,-3)                                |
++-------------------------------------------+
+| Dwa pierwiastki rzeczywiste, x1= -3 x2= 1 |
++-------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> --
+mysql> -- 3. dwa "szalone" pierwiastki rzeczywiste:
+mysql> --
+mysql> select rk(pi(),log(2),-sqrt(3));
++----------------------------------------------------------------------------+
+| rk(pi(),log(2),-sqrt(3))                                                   |
++----------------------------------------------------------------------------+
+| Dwa pierwiastki rzeczywiste, x1= -0.8609834341532501 x2= 0.640347839534073 |
++----------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> --
+mysql> -- 4. dwa "ładne" pierwiastki zespolone:
+mysql> --
+mysql> select rk(1,12,100);
++-------------------------------------------------+
+| rk(1,12,100)                                    |
++-------------------------------------------------+
+| Dwa pierwiastki zespolone, x1= -6-8i  x2= -6+8i |
++-------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> --
+mysql> -- 5. dwa "szalone" pierwiastki zespolone:
+mysql> --
+mysql> select rk(pi(),log(2),sqrt(3));
++-----------------------------------------------------------------------------------------------------------------------+
+| rk(pi(),log(2),sqrt(3))                                                                                               |
++-----------------------------------------------------------------------------------------------------------------------+
+| Dwa pierwiastki zespolone, x1= -0.11031779730958856-0.7342743639030678i  x2= -0.11031779730958856+0.7342743639030678i |
++-----------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> drop function rk;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> --
+mysql> -- Funkcje mogą być również bezargumentowe. Jeżeli jej konstrukcja jest prosta, to 
+mysql> -- nie trzeba rozpoczynać i kończyć definiowania jej ciała (begin - end), a więc nie
+mysql> -- trzeba również zmieniać delimitera (oczywiście można).
+mysql> --
+mysql> -- ZADANIE: napisz funkcję siema, która zwracała będzie napis "Dzień dobry!"
+mysql> --
+mysql> 
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> create function siema()
+    -> returns char(12)
+    -> return "Dzień dobry!";
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select siema();
++---------------+
+| siema()       |
++---------------+
+| Dzień dobry!  |
++---------------+
+1 row in set (0.00 sec)
+
+mysql> --
+mysql> -- Lepszym przykładem takiej funkcji będzie np. funkcja "licznik", której wywołanie 
+mysql> -- zwiększy jakiś licznik o 1. Przy okazji wspomnimy o tym, że zmienne, które były
+mysql> -- w definicji funkcji, były zmiennymi lokalnymi - widzianymi tylko w obrębie tej 
+mysql> -- funkcji. Zmienne globalne również mogą być definiowane:
+mysql> --
+mysql> set @licznik = 1;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select @licznik;
++----------+
+| @licznik |
++----------+
+|        1 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> -- 
+mysql> -- ZADANIE: napisz funkcję licznik, która zwiększała będzie wartość zmiennej 
+mysql> -- globalnej @licznik o 1 przy każdym jej wywołaniu.
+mysql> --
+mysql> delimiter //
+mysql> create function licznik()
+    -> returns char(0)
+    -> begin
+    -> set @licznik = @licznik + 1;
+    -> return null;
+    -> end //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select licznik() //
++-----------+
+| licznik() |
++-----------+
+| NULL      |
++-----------+
+1 row in set (0.00 sec)
+
+mysql> select licznik() //
++-----------+
+| licznik() |
++-----------+
+| NULL      |
++-----------+
+1 row in set (0.00 sec)
+
+mysql> select @licznik //
++----------+
+| @licznik |
++----------+
+|        3 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> --
+mysql> -- Nie jest to najlepsze rozwiązanie - funkcja musi coś zwracać,
+mysql> -- a w tym przypadku jest to niepotrzebne (w zastosowaniach mogłoby
+mysql> -- być nawet szkodliwe). Lepiej zrobić to inaczej, ale o tym powiemy
+mysql> -- w następnym laboratorium.
+mysql> --
+mysql> drop function siema //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> drop function licznik//
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> -- Zmienne globalne znikną sane po zakończeniu sesji, co niniejszym czynimy.
+
+mysql> Terminal close -- exit!

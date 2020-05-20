@@ -1,0 +1,654 @@
+mysql> -- WIDOKI
+mysql> --
+mysql> -- Widoki są wirtualnymi tabelami, tzn. wyglądają jak zwykłe tabele,
+mysql> -- są widoczne w bazie jak tabele (przy zapytaniu SHOW TABLES), ale 
+mysql> -- nie zajmują (tyle co tabele z danymi) miejsca na dysku. Są one 
+mysql> -- zapytaniami, które definiują te tabele, a zapytanie do widoku (jako 
+mysql> -- do tabeli) jest wywołaniem tego zapytania (choć jest to zdecydowanie
+mysql> -- więcej, bo w zapytaniu do widoku możemy używać większości poleceń,
+mysql> -- których można używać przy zapytaniu do zwykłych tabel). 
+mysql> -- Widoki są najczęściej wykorzystywane do "ukrycia" złożonego i często
+mysql> -- wykorzystywanego zapytania do bazy, co ułatwia pracę użytkownika.
+mysql> -- Np. w bazie znajomi można by utworzyć widok, który podawałby zestawienie
+mysql> -- danych osób i ich telefonów.
+mysql> --
+mysql> -- zaczniemy od widoku, który będzie kopią tabeli
+mysql> --
+mysql> -- ZADANIE: stwórz widok, który będzie kopią tabeli miasta.
+mysql> --
+mysql> create VIEW miasta AS 		-- miasta to nazwa widoku
+    -> select id, name, countrycode, district, population
+    -> from city; 					-- a tu zapytanie, które definiuje widok
+Query OK, 0 rows affected (0.11 sec)
+
+mysql> -- Jeśli zapytamy o tabele w bazie, to widok będzie
+mysql> -- nieodróżnialny od tabeli, sprawdzamy:
+mysql> show tables;
++-----------------+
+| Tables_in_swiat |
++-----------------+
+| city            |
+| country         |
+| countrylanguage |
+| miasta          |
++-----------------+
+4 rows in set (0.09 sec)
+
+mysql> -- Jeśli chcemy zobaczyć, co jest tabelą, a co widokiem
+mysql> -- to stosujemy zapytanie:
+mysql> --
+mysql> show full tables;
++-----------------+------------+
+| Tables_in_swiat | Table_type |
++-----------------+------------+
+| city            | BASE TABLE |
+| country         | BASE TABLE |
+| countrylanguage | BASE TABLE |
+| miasta          | VIEW       |
++-----------------+------------+
+4 rows in set (0.00 sec)
+
+mysql> -- Do widoków możemy tworzyć zapytania jak do tabel:
+mysql> --
+mysql> select * from miasta
+    -> where 
+    -> name like "sos%";
++------+------------+-------------+---------------+------------+
+| id   | name       | countrycode | district      | population |
++------+------------+-------------+---------------+------------+
+|  733 | Soshanguve | ZAF         | Gauteng       |     242727 |
+| 2382 | Sosan      | KOR         | Chungchongnam |     134746 |
+| 2941 | Sosnowiec  | POL         | Slaskie       |     244102 |
++------+------------+-------------+---------------+------------+
+3 rows in set (0.02 sec)
+
+mysql> -- Jeśli chcemy usunąć widok, to nie zrobimy tego jak ze zwykłą tabelą:
+mysql> --
+mysql> drop table miasta;
+ERROR 1051 (42S02): Unknown table 'swiat.miasta'
+mysql> --
+mysql> -- tylko:
+mysql> --
+mysql> drop view miasta;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> --
+mysql> -- ZADANIE: stwórz widok miasta - kopia tabeli city, ale z aliasami kolumn.
+mysql> --
+mysql> create view miasta(id, nazwa, kod, zaludnienie) -- ustalenie aliasów
+    -> as 
+    -> select id, name, countrycode, population    	   -- bez kolumny district
+    -> from city;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> -- Teraz kolumny będą miały nazwy z nawiasu ():
+mysql> --
+mysql> desc miasta;
++-------------+----------+------+-----+---------+-------+
+| Field       | Type     | Null | Key | Default | Extra |
++-------------+----------+------+-----+---------+-------+
+| id          | int      | NO   |     | 0       |       |
+| nazwa       | char(35) | NO   |     |         |       |
+| kod         | char(3)  | NO   |     |         |       |
+| zaludnienie | int      | NO   |     | 0       |       |
++-------------+----------+------+-----+---------+-------+
+4 rows in set (0.01 sec)
+
+mysql> -- Teraz nie możemy już pytać o name czy population
+
+mysql> select name 
+    -> from miasta;
+ERROR 1054 (42S22): Unknown column 'name' in 'field list'
+
+mysql> --
+mysql> -- Ale ciągle możemy nadawać aliasy jak w zwykłych tabelach: 
+mysql> --
+mysql> select nazwa miasto, kod, zaludnienie ludność
+    -> from miasta
+    -> where
+    -> nazwa like "sos%";
++------------+-----+-----------+
+| miasto     | kod | ludność   |
++------------+-----+-----------+
+| Soshanguve | ZAF |    242727 |
+| Sosan      | KOR |    134746 |
+| Sosnowiec  | POL |    244102 |
++------------+-----+-----------+
+3 rows in set (0.04 sec)
+
+mysql> --
+mysql> -- Najprościej jest (chyba) tworzyć widoki nadając nazwy ich kolumnom
+mysql> -- tak, jak nadawało się aliasy w zapytaniach do tabel.
+mysql> --
+mysql> -- Najbliższe zadanie wykonamy w ten sposób.
+mysql> --
+mysql> -- ZADANIE: stwórz widok populacja dla miast na "d" z liczbą ludzi zmniejszoną 
+mysql> -- o 10000, gdzie kod pisany jest małymi, a nazwa wielkimi literami.
+mysql> --
+mysql> create view populacja -- aliasy można również nadać "tradycyjnie"
+    -> as 
+    -> select lower(countrycode) kod, upper(name) NAZWA, population - 1e4 ilu
+    -> from city
+    -> where 
+    -> name like "d%";
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> -- 
+mysql> -- Sprawdźmy poprawność danych w widoku.
+mysql> --
+mysql> select nazwa miasto, kod szyfr, ilu
+    -> from populacja
+    -> where
+    -> kod = "pol";
++-------------------+-------+--------+
+| miasto            | szyfr | ilu    |
++-------------------+-------+--------+
+| DABROWA GÓRNICZA  | pol   | 121037 |
++-------------------+-------+--------+
+1 row in set (0.02 sec)
+
+mysql> select population 
+    -> from city 
+    -> where 
+    -> name like "dabro%";
++------------+
+| population |
++------------+
+|     131037 |
++------------+
+1 row in set (0.02 sec)
+
+mysql> --
+mysql> -- Dane ludności się zgadzają, miasta są pisane wielkimi literami, kod małymi,
+mysql> --
+mysql> -- sprawdzimy, czy da się tworzyć widoki oparte na funkcjach agregujących.
+mysql> --
+mysql> --
+mysql> -- ZADANIE: stwórz widok ile miast (im), pokazujący ilość miast dla danego kodu.
+mysql> --
+mysql> create view im
+    -> as 
+    -> select countrycode kod, count(*) ile
+    -> from city
+    -> group by 1;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> --
+mysql> -- Polska w bazie ma 44 miasta, weryfikujemy:
+mysql> --
+mysql> select * from im
+    -> where
+    -> kod like "p%"
+    -> order by 2 desc;
++-----+-----+
+| kod | ile |
++-----+-----+
+| PHL | 136 |
+| PAK |  59 |
+| POL |  44 |
+| PER |  22 |
+| PRK |  13 |
+| PRI |   9 |
+| PSE |   6 |
+| PRY |   5 |
+| PRT |   5 |
+| PAN |   2 |
+| PYF |   2 |
+| PLW |   1 |
+| PNG |   1 |
+| PCN |   1 |
++-----+-----+
+14 rows in set (0.04 sec)
+
+mysql> -- 
+mysql> -- Sprawdzimy możliwość tworzenia widoków opartych na złączeniach.
+mysql> --
+mysql> --
+mysql> -- ZADANIE: stwórz widok pokazujący kod państwa, jego nazwę, kod miasta (kraju, 
+mysql> -- w którym ono jest) i nazwę miasta o tej samej nazwie.
+mysql> --
+mysql> 
+mysql> create view bracia (kod_p, kraj, kod_m, miasto) 
+    -> as
+    -> select code, p.name, countrycode, m.name
+    -> from country p, city m
+    -> where 
+    -> m.name = p.name; -- nie muszą być z tego samego kraju, tylko nazwy mają się pokrywać
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select * from bracia;
++-------+------------+-------+------------+
+| kod_p | kraj       | kod_m | miasto     |
++-------+------------+-------+------------+
+| DJI   | Djibouti   | DJI   | Djibouti   |
+| MEX   | Mexico     | PHL   | Mexico     |
+| GIB   | Gibraltar  | GIB   | Gibraltar  |
+| ARM   | Armenia    | COL   | Armenia    |
+| KWT   | Kuwait     | KWT   | Kuwait     |
+| MAC   | Macao      | MAC   | Macao      |
+| SMR   | San Marino | SMR   | San Marino |
+| SGP   | Singapore  | SGP   | Singapore  |
++-------+------------+-------+------------+
+8 rows in set (0.02 sec)
+
+mysql> --
+mysql> -- Sprawdzimy, czy można rozbić złączenia oryginalnej tabeli i widoku.
+mysql> --
+mysql> -- ZADANIE: wypisz nazwy miast (z widoku bracia), nazwę lokalną 
+mysql> -- kraju i nazwę  kraju, które nazywa się jak to miasto. 
+mysql> --
+mysql> select miasto, localname nazwa, kraj
+    -> from bracia, country
+    -> where 
+    -> kraj = name
+    -> order by 3;
++------------+---------------------------------------+------------+
+| miasto     | nazwa                                 | kraj       |
++------------+---------------------------------------+------------+
+| Armenia    | Hajastan                              | Armenia    |
+| Djibouti   | Djibouti/Jibuti                       | Djibouti   |
+| Gibraltar  | Gibraltar                             | Gibraltar  |
+| Kuwait     | Al-Kuwayt                             | Kuwait     |
+| Macao      | Macau/Aomen                           | Macao      |
+| Mexico     | México                                | Mexico     |
+| San Marino | San Marino                            | San Marino |
+| Singapore  | Singapore/Singapura/Xinjiapo/Singapur | Singapore  |
++------------+---------------------------------------+------------+
+8 rows in set (0.06 sec)
+mysql> --
+mysql> -- Sprawdzimy, czy można rozbić złączenia widoku i widoku.
+mysql> --
+mysql> --
+mysql> -- ZADANIE: do kolumn widoku im dopisz nazwę kraju z widoku bracia.
+mysql> --
+mysql> select kod, kraj, ile
+    -> from im, bracia b
+    -> where 
+    -> kod = kod_p
+    -> order by 3, 1;
++-----+------------+-----+
+| kod | kraj       | ile |
++-----+------------+-----+
+| DJI | Djibouti   |   1 |
+| GIB | Gibraltar  |   1 |
+| MAC | Macao      |   1 |
+| SGP | Singapore  |   1 |
+| SMR | San Marino |   2 |
+| ARM | Armenia    |   3 |
+| KWT | Kuwait     |   3 |
+| MEX | Mexico     | 173 |
++-----+------------+-----+
+8 rows in set (0.10 sec)
+
+mysql> --
+mysql> -- Sprawdzimy, czy można robić widok oparty na podzapytaniach.
+mysql> --
+mysql> --
+mysql> -- ZADANIE: stwórz widok z państwami i ich stolicami o populacji (kraju) ponadprzeciętnej.
+mysql> --
+mysql> create view dużo 
+    -> as 
+    -> select p.name kraj, m.name stolica, p.population ilu
+    -> from country p, city m
+    -> where
+    -> capital = id 
+    -> and
+    -> p.population > 
+    -> (select avg(population) 
+    -> from country);
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> --
+mysql> select * from dużo 
+    -> order by 3;
++---------------------------------------+---------------------+------------+
+| kraj                                  | stolica             | ilu        |
++---------------------------------------+---------------------+------------+
+| Peru                                  | Lima                |   25662000 |
+| Morocco                               | Rabat               |   28351000 |
+| Sudan                                 | Khartum             |   29490000 |
+| Kenya                                 | Nairobi             |   30080000 |
+| Canada                                | Ottawa              |   31147000 |
+| Algeria                               | Alger               |   31471000 |
+| Tanzania                              | Dodoma              |   33517000 |
+| Argentina                             | Buenos Aires        |   37032000 |
+| Poland                                | Warszawa            |   38653600 |
+| Spain                                 | Madrid              |   39441700 |
+| South Africa                          | Pretoria            |   40377000 |
+| Colombia                              | Santafé de Bogotá   |   42321000 |
+| Myanmar                               | Rangoon (Yangon)    |   45611000 |
+| South Korea                           | Seoul               |   46844000 |
+| Ukraine                               | Kyiv                |   50456000 |
+| Congo, The Democratic Republic of the | Kinshasa            |   51654000 |
+| Italy                                 | Roma                |   57680000 |
+| France                                | Paris               |   59225700 |
+| United Kingdom                        | London              |   59623400 |
+| Thailand                              | Bangkok             |   61399000 |
+| Ethiopia                              | Addis Abeba         |   62565000 |
+| Turkey                                | Ankara              |   66591000 |
+| Iran                                  | Teheran             |   67702000 |
+| Egypt                                 | Cairo               |   68470000 |
+| Philippines                           | Manila              |   75967000 |
+| Vietnam                               | Hanoi               |   79832000 |
+| Germany                               | Berlin              |   82164700 |
+| Mexico                                | Ciudad de México    |   98881000 |
+| Nigeria                               | Abuja               |  111506000 |
+| Japan                                 | Tokyo               |  126714000 |
+| Bangladesh                            | Dhaka               |  129155000 |
+| Russian Federation                    | Moscow              |  146934000 |
+| Pakistan                              | Islamabad           |  156483000 |
+| Brazil                                | Brasília            |  170115000 |
+| Indonesia                             | Jakarta             |  212107000 |
+| United States                         | Washington          |  278357000 |
+| India                                 | New Delhi           | 1013662000 |
+| China                                 | Peking              | 1277558000 |
++---------------------------------------+---------------------+------------+
+38 rows in set (0.01 sec)
+
+mysql> --
+mysql> -- ZADANIE: stwórz widok pokazujący nazwę państwa, populację i wagę.
+mysql> -- Dla państw o ludności powyżej 100 000 000 waga = 6, dla krajów o ludności
+mysql> -- pomiędzy 50 000 000 a 100 000 000 waga = 3, dla reszty 0.
+mysql> --
+mysql> create view wagi 
+    -> as
+    -> select name kraj, population ilu, 
+    -> if(population>1e8,6,if(population<5e7,0,3)) waga
+    -> from country;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> --
+mysql> --
+mysql> select * from wagi 
+    -> where 
+    -> kraj like "p%" 
+    -> order by 3, 2;
++------------------+-----------+------+
+| kraj             | ilu       | waga |
++------------------+-----------+------+
+| Pitcairn         |        50 |    0 |
+| Palau            |     19000 |    0 |
+| Panama           |   2856000 |    0 |
+| Palestine        |   3101000 |    0 |
+| Puerto Rico      |   3869000 |    0 |
+| Papua New Guinea |   4807000 |    0 |
+| Paraguay         |   5496000 |    0 |
+| Portugal         |   9997600 |    0 |
+| Peru             |  25662000 |    0 |
+| Poland           |  38653600 |    0 |
+| Philippines      |  75967000 |    3 |
+| Pakistan         | 156483000 |    6 |
++------------------+-----------+------+
+12 rows in set (0.00 sec)
+
+mysql> -- 
+mysql> -- Sprawdzimy, czy można rozbić widoki do widoku.
+mysql> --
+mysql> --
+mysql> -- ZADANIE: utwórz widok wagi2 do widoku wagi, wybierający państwa na P.
+mysql> --
+mysql> create view wagi2 
+    -> as
+    -> select * from wagi
+    -> where 
+    -> kraj like "p%";
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> --
+mysql> --
+mysql> select * from wagi2 
+    -> order by 3, 2;
++------------------+-----------+------+
+| kraj             | ilu       | waga |
++------------------+-----------+------+
+| Pitcairn         |        50 |    0 |
+| Palau            |     19000 |    0 |
+| Panama           |   2856000 |    0 |
+| Palestine        |   3101000 |    0 |
+| Puerto Rico      |   3869000 |    0 |
+| Papua New Guinea |   4807000 |    0 |
+| Paraguay         |   5496000 |    0 |
+| Portugal         |   9997600 |    0 |
+| Peru             |  25662000 |    0 |
+| Poland           |  38653600 |    0 |
+| Philippines      |  75967000 |    3 |
+| Pakistan         | 156483000 |    6 |
++------------------+-----------+------+
+12 rows in set (0.00 sec)
+
+mysql> --
+mysql> -- Widoki można podzielić na modyfikowalne i niemodyfikowalne
+mysql> -- (chociaż nazwa ta jest nie do końca trafna).
+mysql> -- Zanim pokażemy różnicę między nimi, sprawdźmy, po ile jest 
+mysql> -- państw o danej wadze:
+mysql> --
+mysql> select waga, count(*)
+    -> from wagi
+    -> group by 1;
++------+----------+
+| waga | count(*) |
++------+----------+
+|    0 |      215 |
+|    6 |       10 |
+|    3 |       14 |
++------+----------+
+3 rows in set (0.00 sec)
+
+mysql> -- 
+mysql> -- Ponieważ widok jest tylko zapytaniem, to zmiana danych w tabeli
+mysql> -- powoduje zmianę danych w widoku (zapytanie definiujące dany
+mysql> -- widok wykonuje się na bieżącym stanie bazy danych),
+mysql> -- np. dodamy jeden kraj do bazy świat i sprawdzimy wynik powyższego zapytania.
+mysql> -- 
+
+mysql> insert country (name, continent, population)
+    -> value ("Nowy kraj", "Europe", 123456);
+Query OK, 1 row affected (0.03 sec)
+
+mysql> -- 
+mysql> -- Zakończenie zapytania "\G" powoduje wyświetlenie wyników transponowanych,
+mysql> -- tzn. kolumny są wypisywane jako wiersze, co zwiększa czytelność przy 
+mysql> -- dużej liczbie wierszy (tak jak w poniższym zapytaniu).
+mysql> --
+
+mysql> select * from country
+    -> where
+    -> name like "nowy%"\G
+*************************** 1. row ***************************
+          Code: 
+          Name: Nowy kraj
+     Continent: Europe
+        Region: 
+   SurfaceArea: 0.00
+     IndepYear: NULL
+    Population: 123456
+LifeExpectancy: NULL
+           GNP: NULL
+        GNPOld: NULL
+     LocalName: 
+GovernmentForm: 
+   HeadOfState: NULL
+       Capital: NULL
+         Code2: 
+1 row in set (0.00 sec)
+
+mysql> -- 
+mysql> -- Sprawdzamy ile jest państw o danej wadze (powinna zwiększyć się o jeden
+mysql> -- liczba państw o wadze 0)
+mysql> --
+
+mysql> select waga, count(*)
+    -> from wagi
+    -> group by 1;
++------+----------+
+| waga | count(*) |
++------+----------+
+|    0 |      216 |
+|    6 |       10 |
+|    3 |       14 |
++------+----------+
+3 rows in set (0.00 sec)
+
+mysql> --
+mysql> -- i zwiększyła się z 215 na 216.
+mysql> --
+mysql> -- Ciekawszym zatem jest pytanie - czy można zmieniać dane w widoku
+mysql> -- i czy zmiany te wpływają na dane w bazie?
+mysql> -- I tu właśnie mamy do czynienia z podziałem widoków - są widoki, w których 
+mysql> -- jest to możliwe (widok modyfikowalny) i są takie, w których jest to 
+mysql> -- niemożliwe (widok niemodyfikowalny). 
+mysql> -- Jak rozpoznać dany widok? Utworzenie widoku zawsze jest jednoznaczne - definiuje 
+mysql> -- do zapytanie tworzące ten widok, ale przejście w drugą stronę nie musi już 
+mysql> -- być jednoznaczne (np. ze zbioru osób uporządkowanych wg. wzrostu można zrobić 
+mysql> -- listę osób uporządkowaną wg. wieku i działanie to można odwrócić - mając osoby
+mysql> -- uporządkowanie po wieku możemy uporządkować po wzroście, ale jeśli dla grupy 
+mysql> -- osób policzymy jej średnią wieku, to z tej średniej nie można wyznaczyć 
+mysql> -- wieku poszczególnych osób). W związku z tym, widoki oparte o funkcje agregujące
+mysql> -- są niemodyfikowalne (podobnie jak większość zapytań opartych o podzapytania).
+mysql> -- 
+mysql> -- Spróbujmy zmienić widok niemodyfikowalny - dodajmy Polsce jedno miasto (ale w widoku
+mysql> -- im, jest to niemożliwe, bo nie znamy danych tego miasta):
+mysql> --
+
+mysql> update im 
+    -> set ile = 45 
+    -> where 
+    -> kod = "POL";
+ERROR 1288 (HY000): The target table im of the UPDATE is not updatable
+
+mysql> -- 
+mysql> -- Są widoki, w których można zmienić tylko wybrane kolumny:
+mysql> -- 
+mysql> update dużo
+    -> set stolica = "Gliwice"
+    -> where
+    -> kraj = "Poland";
+Query OK, 1 row affected (0.02 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+mysql> -- 
+mysql> -- I stolicą Polski stały się Gliwice:
+mysql> -- 
+
+mysql> select k.name, p.name 
+    -> from country k, city p 
+    -> where 
+    -> capital = id
+    -> and
+    -> code = "pol";
++--------+---------+
+| name   | name    |
++--------+---------+
+| Poland | Gliwice |
++--------+---------+
+1 row in set (0.00 sec)
+
+
+mysql> update dużo 
+    -> set ilu = 5e6 
+    -> where 
+    -> kraj = "Poland";
+ERROR 1288 (HY000): The target table dużo of the UPDATE is not updatable
+
+--
+-- widok miasta jest całkowicie modyfikowalny, bo jest niemal kopią tabeli city
+--
+mysql> delete from miasta
+    -> where
+    -> nazwa like "sos%";
+Query OK, 3 rows affected (0.02 sec)
+
+mysql> update miasta 
+    -> set zaludnienie = 2e6
+    -> where
+    -> nazwa = "Gliwice";
+Query OK, 2 rows affected (0.01 sec)
+Rows matched: 2  Changed: 2  Warnings: 0
+
+mysql> insert miasta
+    -> value
+    -> (5000,"Nowe Miasto", "POL", 3456);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> -- 
+mysql> -- Sprawdzamy, jak te zmiany wpłynęły na bazę (tabela city)
+mysql> --
+
+mysql> select * from city
+    -> where 
+    -> name like "sos%";
+Empty set (0.01 sec)
+
+mysql> select * from city 
+    -> where
+    -> name = "GLiwice";
++------+---------+-------------+-------------+------------+
+| ID   | Name    | CountryCode | District    | Population |
++------+---------+-------------+-------------+------------+
+| 2928 | Gliwice | POL         | Mazowieckie |    2000000 |
+| 2944 | Gliwice | POL         | Slaskie     |    2000000 |
++------+---------+-------------+-------------+------------+
+2 rows in set (0.01 sec)
+
+mysql> -- 
+mysql> -- Tu mamy ciekawy wyniki - dwa razy Gliwice. Bierze się to z tego, że w widoku
+mysql> -- "dużo" zmieniliśmy stolicę na Gliwice (jednak nie zmienialiśmy tego jak 
+mysql> -- należałoby to zrobić, tzn. w tabeli country zmienić wartość "capital" na 
+mysql> -- id Gliwic, dlatego Warszawa zamieniła się na Gliwice.
+mysql> -- 
+
+mysql> select * from city 
+    -> where
+    -> name like "Warsz%";
+Empty set (0.01 sec)
+
+mysql> select * from city 
+    -> where
+    -> name like "nowe%";
++------+-------------+-------------+----------+------------+
+| ID   | Name        | CountryCode | District | Population |
++------+-------------+-------------+----------+------------+
+| 5000 | Nowe Miasto | POL         |          |       3456 |
++------+-------------+-------------+----------+------------+
+1 row in set (0.01 sec)
+
+mysql> -- 
+mysql> -- Nie ma wartości w kolumnie District, bo nie daliśmy tej kolumny do widoku
+mysql> --
+mysql> --
+mysql> -- Ostatnim rodzajem widoku, bardziej jako ciekawostka, jest 
+mysql> -- widok dyndający - jest to widok odnoszący się do nieistniejących
+mysql> -- danych (wartości lub tabel).
+mysql> --
+mysql> -- ZADANIE: stwórz widok dyndający.
+mysql> --
+
+mysql> drop view wagi;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> -- 
+mysql> -- Widok wagi2 stał się widokiem dyndającym - jego definicja  
+mysql> -- oparta jest o widok wagi.
+mysql> --
+
+mysql> select * from wagi2;
+ERROR 1356 (HY000): View 'swiat.wagi2' references invalid table(s) or column(s) or function(s) or definer/invoker of view lack rights to use them
+
+mysql> --
+mysql> -- Pozostało jeszcze posprzątanie:
+mysql> --
+
+mysql> drop database swiat;
+Query OK, 9 rows affected (0.11 sec)
+
+mysql> --
+mysql> -- I wczytać poprzednią wersję:
+mysql> --
+mysql> \. C:\Users\user\Desktop\world.sql
+.
+.
+.
+.
+.
+Query OK, 0 rows affected (0.00 sec)
+
+
